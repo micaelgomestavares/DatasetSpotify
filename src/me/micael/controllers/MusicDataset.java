@@ -123,8 +123,7 @@ public class MusicDataset {
             System.out.println("A lista está vazia");
         }
 
-        for (int i = 0; i < musicColection.getTotalNumberOfMusics(); i++) {
-            Music music = musicColection.getMusic(i);
+        for (Music music : musicColection) {
 
             System.out.println("*---------------------*");
             System.out.println("Artista: " + music.getArtist());
@@ -137,5 +136,6 @@ public class MusicDataset {
             System.out.println("*---------------------*");
             System.out.print("\n");
         }
+
     }
 }

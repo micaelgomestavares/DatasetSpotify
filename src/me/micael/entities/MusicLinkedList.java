@@ -1,5 +1,8 @@
 package src.me.micael.entities;
 
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
 import src.me.micael.interfaces.MusicCollection;
 import src.me.micael.interfaces.Sorter;
 
@@ -68,59 +71,67 @@ public class MusicLinkedList implements MusicCollection {
 
     @Override
     public Music getMusic(Integer musicPosition) {
-        if (musicPosition < this.totalNumberOfMusics) {
+        if (musicPosition >= 0 && musicPosition < this.totalNumberOfMusics) {
+            MusicListIterator iterator = new MusicListIterator();
 
-            Node actualNode = this.initialNode;
-
+            // Iterar até a posição desejada
             for (int i = 0; i < musicPosition; i++) {
-                actualNode = actualNode.getNext();
+                iterator.next();
             }
 
-            return actualNode.getMusic();
-
+            // Retornar a música na posição atual do iterador
+            return iterator.currentNode.getMusic();
         }
         return null;
     }
 
     @Override
     public boolean changeMusicPositions(Integer pos1, Integer pos2) {
-        if (pos1 != pos2 && pos1 < this.totalNumberOfMusics
-                && pos2 < this.totalNumberOfMusics) {
+        if (pos1 != pos2 && pos1 < this.totalNumberOfMusics && pos2 < this.totalNumberOfMusics) {
+            MusicListIterator iterator = new MusicListIterator();
+            Node node1 = null;
+            Node node2 = null;
+            Node prevNode1 = null;
+            Node prevNode2 = null;
 
-            Node auxNode = null;
-            Node actualNode = this.initialNode;
-
-            Node auxNode2 = null;
-            Node actualNode2 = this.initialNode;
-
-            for (int i = 0; i < pos1; i++) {
-                auxNode = actualNode;
-                actualNode = actualNode.getNext();
+            // Encontra o nó na posição pos1 usando o iterador e mantém o nó anterior
+            for (int i = 0; i <= pos1 && iterator.hasNext(); i++) {
+                prevNode1 = node1;
+                node1 = iterator.currentNode;
+                iterator.next();
             }
 
-            for (int i = 0; i < pos2; i++) {
-                auxNode2 = actualNode2;
-                actualNode2 = actualNode2.getNext();
+            // Reinicia o iterador para encontrar o nó na posição pos2 e mantém o nó
+            // anterior
+            iterator = new MusicListIterator();
+            for (int i = 0; i <= pos2 && iterator.hasNext(); i++) {
+                prevNode2 = node2;
+                node2 = iterator.currentNode;
+                iterator.next();
             }
 
-            if (auxNode == null) {
-                this.initialNode = actualNode2;
-            } else {
-                auxNode.setNext(actualNode2);
+            // Agora, você tem os nós node1 e node2 nas posições pos1 e pos2, bem como seus
+            // nós anteriores
+
+            if (node1 != null && node2 != null) {
+                if (node1 == initialNode) {
+                    initialNode = node2;
+                } else {
+                    prevNode1.setNext(node2);
+                }
+
+                if (node2 == initialNode) {
+                    initialNode = node1;
+                } else {
+                    prevNode2.setNext(node1);
+                }
+
+                Node tempNext1 = node1.getNext();
+                node1.setNext(node2.getNext());
+                node2.setNext(tempNext1);
+
+                return true;
             }
-
-            if (auxNode2 == null) {
-                this.initialNode = actualNode;
-            } else {
-                auxNode2.setNext(actualNode);
-            }
-
-            Node tempNo = actualNode.getNext();
-
-            actualNode.setNext(actualNode2.getNext());
-            actualNode2.setNext(tempNo);
-
-            return true;
         }
 
         return false;
@@ -151,6 +162,53 @@ public class MusicLinkedList implements MusicCollection {
     @Override
     public void sortColection(Sorter sorter) {
         sorter.sort(this);
+    }
+
+    @Override
+    public Iterator<Music> iterator() {
+        return new MusicListIterator();
+    }
+
+    private class MusicListIterator implements Iterator<Music> {
+        private Node currentNode = initialNode;
+        private Node previousNode = null;
+
+        @Override
+        public boolean hasNext() {
+            return currentNode != null;
+        }
+
+        @Override
+        public Music next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+
+            Music music = currentNode.getMusic();
+            previousNode = currentNode;
+            currentNode = currentNode.getNext();
+            
+            return music;
+        }
+
+        @Override
+        public void remove() {
+            if (previousNode == null) {
+                // Caso 2: Removendo o nó inicial
+                initialNode = currentNode.getNext();
+            } else {
+                // Caso 1: Removendo o último nó
+                if (currentNode.getNext() == null) {
+                    previousNode.setNext(null);
+                } else {
+                    // Caso 3: Removendo um nó intermediário
+                    previousNode.setNext(currentNode.getNext());
+                }
+            }
+
+            totalNumberOfMusics--;
+        }
+
     }
 
 }

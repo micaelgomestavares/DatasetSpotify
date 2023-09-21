@@ -17,13 +17,13 @@ public class Main {
 
 		MusicCollection musicColectionWithList = new MusicLinkedList();
 
-		MusicDataset.readDefaultDataset("C:/Users/Micael Gomes/Desktop/Faculdade/DatasetSpotify/io/input/dataset.csv",
+		MusicDataset.readDefaultDataset(
+				"C:/Users/Micael Gomes/Desktop/Faculdade/DatasetSpotify/src/io/input/dataset.csv",
 				musicColectionWithList);
 
 		MusicDataset.writeDataset(
-				"C:/Users/Micael Gomes/Desktop/Faculdade/DatasetSpotify/io/output/datasetNovoComListaEncadeada.csv",
+				"C:/Users/Micael Gomes/Desktop/Faculdade/DatasetSpotify/src/io/output/datasetOrdenadoTeste.csv",
 				musicColectionWithList);
-
 		/*
 		 * 
 		 * Testes utilizando Vetor
@@ -32,11 +32,12 @@ public class Main {
 
 		MusicCollection musicColectionWithVector = new MusicVector(20020);
 
-		MusicDataset.readDefaultDataset("C:/Users/Micael Gomes/Desktop/Faculdade/DatasetSpotify/io/input/dataset.csv",
+		MusicDataset.readDefaultDataset(
+				"C:/Users/Micael Gomes/Desktop/Faculdade/DatasetSpotify/src/io/input/dataset.csv",
 				musicColectionWithVector);
 
 		MusicDataset.writeDataset(
-				"C:/Users/Micael Gomes/Desktop/Faculdade/DatasetSpotify/io/output/datasetNovoComVetor.csv",
+				"C:/Users/Micael Gomes/Desktop/Faculdade/DatasetSpotify/src/io/output/datasetNovoComVetor.csv",
 				musicColectionWithVector);
 
 	}

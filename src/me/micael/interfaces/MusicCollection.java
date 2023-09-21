@@ -2,7 +2,7 @@ package src.me.micael.interfaces;
 
 import src.me.micael.entities.Music;
 
-public interface MusicCollection {
+public interface MusicCollection extends Iterable<Music> {
 
     public Music getMusic(Integer musicPosition);
 
