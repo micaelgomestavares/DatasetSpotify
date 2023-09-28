@@ -1,8 +1,8 @@
 package src.me.micael.interfaces;
 
-import src.me.micael.entities.Music;
+import src.me.micael.model.Music;
 
-public interface MusicCollection extends Iterable<Music> {
+public interface MusicCollection {
 
     public Music getMusic(Integer musicPosition);
 

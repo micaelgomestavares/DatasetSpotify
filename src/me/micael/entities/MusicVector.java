@@ -1,10 +1,8 @@
 package src.me.micael.entities;
 
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-
 import src.me.micael.interfaces.MusicCollection;
 import src.me.micael.interfaces.Sorter;
+import src.me.micael.model.Music;
 
 public class MusicVector implements MusicCollection {
 
@@ -93,43 +91,4 @@ public class MusicVector implements MusicCollection {
         sorter.sort(this);
     }
 
-    @Override
-    public Iterator<Music> iterator() {
-        return new MusicListIterator();
-    }
-
-    private class MusicListIterator implements Iterator<Music> {
-        private int currentIndex = -1;
-
-        @Override
-        public boolean hasNext() {
-            return currentIndex < actualLength - 1;
-        }
-
-        @Override
-        public Music next() {
-            if (!hasNext()) {
-                throw new NoSuchElementException();
-            }
-
-            currentIndex++;
-            return musicVector[currentIndex];
-        }
-
-        @Override
-        public void remove() {
-            if (currentIndex < 0 || currentIndex >= actualLength) {
-                throw new IllegalStateException("Invalid index for removal");
-            }
-
-            // Remove o elemento da posição currentIndex
-            for (int i = currentIndex; i < actualLength - 1; i++) {
-                musicVector[i] = musicVector[i + 1];
-            }
-
-            musicVector[actualLength - 1] = null;
-            actualLength--;
-            currentIndex--;
-        }
-    }
 }

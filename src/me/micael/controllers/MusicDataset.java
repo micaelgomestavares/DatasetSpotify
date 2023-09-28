@@ -6,8 +6,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import src.me.micael.entities.Music;
 import src.me.micael.interfaces.MusicCollection;
+import src.me.micael.model.Music;
 
 public class MusicDataset {
 
@@ -123,8 +123,9 @@ public class MusicDataset {
             System.out.println("A lista está vazia");
         }
 
-        for (Music music : musicColection) {
+        for (int i = 0; i < musicColection.getTotalNumberOfMusics(); i++) {
 
+            Music music = musicColection.getMusic(i);
             System.out.println("*---------------------*");
             System.out.println("Artista: " + music.getArtist());
             System.out.println("Nome da Musica: " + music.getTrack());

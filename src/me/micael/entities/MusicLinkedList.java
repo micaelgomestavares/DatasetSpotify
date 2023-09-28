@@ -1,10 +1,9 @@
 package src.me.micael.entities;
 
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-
 import src.me.micael.interfaces.MusicCollection;
 import src.me.micael.interfaces.Sorter;
+import src.me.micael.model.Music;
+import src.me.micael.model.Node;
 
 public class MusicLinkedList implements MusicCollection {
 
@@ -12,10 +11,22 @@ public class MusicLinkedList implements MusicCollection {
     private Node lastNode;
     private int totalNumberOfMusics;
 
+    Iterator getMusicIterator;
+    private int getMusicIteratorPosition;
+
+    Iterator changeMusicIterator;
+    private int changeMusicIteratorPosition;
+
     public MusicLinkedList() {
         this.initialNode = null;
         this.lastNode = null;
+
         this.totalNumberOfMusics = 0;
+        this.changeMusicIteratorPosition = 0;
+        this.getMusicIteratorPosition = 0;
+
+        this.changeMusicIterator = null;
+        this.getMusicIterator = null;
     }
 
     @Override
@@ -27,10 +38,10 @@ public class MusicLinkedList implements MusicCollection {
             this.initialNode = newNode;
             this.lastNode = newNode;
         } else {
-            // Caso contrário, adiciona o novo nó após o último nó e atualiza o último nó
-            // com o nó criado
             this.lastNode.setNext(newNode);
             this.lastNode = newNode;
+            this.changeMusicIterator = new Iterator(this.initialNode);
+            this.getMusicIterator = new Iterator(this.initialNode);
         }
 
         this.totalNumberOfMusics++;
@@ -38,32 +49,25 @@ public class MusicLinkedList implements MusicCollection {
         return true;
     }
 
+    @Override
     public boolean deleteMusic(String musicName) {
+        Node currentMusic = this.initialNode;
+        Node previousMusic = null;
+
         if (this.initialNode != null) {
-            if (this.initialNode.getMusic().getTrack().equalsIgnoreCase(musicName)) {
-                this.initialNode = this.initialNode.getNext();
-                if (this.initialNode == null) {
-                    this.lastNode = null;
+            while ((currentMusic.getNext() != null) && (!musicName.equals(currentMusic.getMusic().getTrack()))) {
+                previousMusic = currentMusic;
+                currentMusic = currentMusic.getNext();
+            }
+            if (musicName.equals(currentMusic.getMusic().getTrack())) {
+                if (previousMusic == null) {
+                    this.initialNode = initialNode.getNext();
+
+                } else {
+                    previousMusic.setNext(currentMusic.getNext());
                 }
                 this.totalNumberOfMusics--;
                 return true;
-            } else {
-                Node auxNode = null;
-                Node actualNode = this.initialNode;
-
-                while (actualNode != null && !actualNode.getMusic().getTrack().equalsIgnoreCase(musicName)) {
-                    auxNode = actualNode;
-                    actualNode = actualNode.getNext();
-                }
-
-                if (actualNode != null && auxNode != null) {
-                    auxNode.setNext(actualNode.getNext());
-                    if (actualNode == this.lastNode) {
-                        this.lastNode = auxNode;
-                    }
-                    this.totalNumberOfMusics--;
-                    return true;
-                }
             }
         }
         return false;
@@ -71,67 +75,78 @@ public class MusicLinkedList implements MusicCollection {
 
     @Override
     public Music getMusic(Integer musicPosition) {
-        if (musicPosition >= 0 && musicPosition < this.totalNumberOfMusics) {
-            MusicListIterator iterator = new MusicListIterator();
-
-            // Iterar até a posição desejada
-            for (int i = 0; i < musicPosition; i++) {
-                iterator.next();
+        if (musicPosition > this.getMusicIteratorPosition) {
+            while (this.getMusicIterator.hasNext() && musicPosition != getMusicIteratorPosition) {
+                this.getMusicIterator.getNext();
+                getMusicIteratorPosition++;
             }
-
-            // Retornar a música na posição atual do iterador
-            return iterator.currentNode.getMusic();
+        } else if (musicPosition < getMusicIteratorPosition) {
+            this.getMusicIterator.currentNode = this.initialNode;
+            getMusicIteratorPosition = 0;
+            while (this.getMusicIterator.hasNext() && musicPosition != getMusicIteratorPosition) {
+                this.getMusicIterator.getNext();
+                getMusicIteratorPosition++;
+            }
         }
-        return null;
+        return this.getMusicIterator.currentNode.getMusic();
+
     }
 
     @Override
     public boolean changeMusicPositions(Integer pos1, Integer pos2) {
-        if (pos1 != pos2 && pos1 < this.totalNumberOfMusics && pos2 < this.totalNumberOfMusics) {
-            MusicListIterator iterator = new MusicListIterator();
-            Node node1 = null;
-            Node node2 = null;
-            Node prevNode1 = null;
-            Node prevNode2 = null;
+        Node auxiliar = null;
+        Node auxiliar2 = null;
 
-            // Encontra o nó na posição pos1 usando o iterador e mantém o nó anterior
-            for (int i = 0; i <= pos1 && iterator.hasNext(); i++) {
-                prevNode1 = node1;
-                node1 = iterator.currentNode;
-                iterator.next();
+        try {
+            if (pos1 > this.changeMusicIteratorPosition) {
+                while ((this.changeMusicIterator.hasNext()) && (this.changeMusicIteratorPosition != pos1)) {
+                    this.changeMusicIterator.getNext();
+                    this.changeMusicIteratorPosition++;
+                    auxiliar = this.changeMusicIterator.currentNode;
+                }
             }
 
-            // Reinicia o iterador para encontrar o nó na posição pos2 e mantém o nó
-            // anterior
-            iterator = new MusicListIterator();
-            for (int i = 0; i <= pos2 && iterator.hasNext(); i++) {
-                prevNode2 = node2;
-                node2 = iterator.currentNode;
-                iterator.next();
+            else if ((pos1 < this.changeMusicIteratorPosition)) {
+                this.changeMusicIterator.currentNode = this.initialNode;
+                this.changeMusicIteratorPosition = 0;
+                while ((this.changeMusicIterator.hasNext()) && (this.changeMusicIteratorPosition != pos1)) {
+                    this.changeMusicIterator.getNext();
+                    this.changeMusicIteratorPosition++;
+                    auxiliar = this.changeMusicIterator.currentNode;
+                }
+            } else {
+                auxiliar = this.changeMusicIterator.currentNode;
             }
 
-            // Agora, você tem os nós node1 e node2 nas posições pos1 e pos2, bem como seus
-            // nós anteriores
-
-            if (node1 != null && node2 != null) {
-                if (node1 == initialNode) {
-                    initialNode = node2;
-                } else {
-                    prevNode1.setNext(node2);
+            if ((auxiliar != null) && (pos2 > pos1)) {
+                while ((this.changeMusicIterator.hasNext()) && (this.changeMusicIteratorPosition != pos2)) {
+                    this.changeMusicIterator.getNext();
+                    this.changeMusicIteratorPosition++;
+                    auxiliar2 = this.changeMusicIterator.currentNode;
                 }
-
-                if (node2 == initialNode) {
-                    initialNode = node1;
-                } else {
-                    prevNode2.setNext(node1);
+            } else if ((auxiliar != null) && (pos2 < pos1)) {
+                this.changeMusicIterator.currentNode = this.initialNode;
+                this.changeMusicIteratorPosition = 0;
+                while (this.changeMusicIteratorPosition != pos2) {
+                    this.changeMusicIterator.getNext();
+                    this.changeMusicIteratorPosition++;
+                    auxiliar2 = this.changeMusicIterator.currentNode;
                 }
+            }
 
-                Node tempNext1 = node1.getNext();
-                node1.setNext(node2.getNext());
-                node2.setNext(tempNext1);
+            else {
+                auxiliar2 = this.changeMusicIterator.currentNode;
+            }
 
+            if (this.changeMusicIteratorPosition == pos2) {
+                Music aux = auxiliar.getMusic();
+                auxiliar.setMusic(auxiliar2.getMusic());
+                auxiliar2.setMusic(aux);
                 return true;
             }
+
+        } catch (NullPointerException e) {
+            System.out.println("Erro! Apontando pra null!");
         }
 
         return false;
@@ -163,52 +178,4 @@ public class MusicLinkedList implements MusicCollection {
     public void sortColection(Sorter sorter) {
         sorter.sort(this);
     }
-
-    @Override
-    public Iterator<Music> iterator() {
-        return new MusicListIterator();
-    }
-
-    private class MusicListIterator implements Iterator<Music> {
-        private Node currentNode = initialNode;
-        private Node previousNode = null;
-
-        @Override
-        public boolean hasNext() {
-            return currentNode != null;
-        }
-
-        @Override
-        public Music next() {
-            if (!hasNext()) {
-                throw new NoSuchElementException();
-            }
-
-            Music music = currentNode.getMusic();
-            previousNode = currentNode;
-            currentNode = currentNode.getNext();
-            
-            return music;
-        }
-
-        @Override
-        public void remove() {
-            if (previousNode == null) {
-                // Caso 2: Removendo o nó inicial
-                initialNode = currentNode.getNext();
-            } else {
-                // Caso 1: Removendo o último nó
-                if (currentNode.getNext() == null) {
-                    previousNode.setNext(null);
-                } else {
-                    // Caso 3: Removendo um nó intermediário
-                    previousNode.setNext(currentNode.getNext());
-                }
-            }
-
-            totalNumberOfMusics--;
-        }
-
-    }
-
 }

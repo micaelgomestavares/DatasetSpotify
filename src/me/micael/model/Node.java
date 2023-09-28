@@ -1,4 +1,4 @@
-package src.me.micael.entities;
+package src.me.micael.model;
 
 public class Node {
 
