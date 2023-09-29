@@ -13,6 +13,7 @@ Este projeto é um projeto educacional feito no terceiro período do Bacharelado
 - Pegar a quantidade total de músicas
 
 - Ordenar com BubbleSort
+- Ordenar com SelectionSort
 
 
 ## 🎓 Aprendizados
